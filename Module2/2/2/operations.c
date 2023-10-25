@@ -18,5 +18,8 @@ void mult(int x, int y)
 
 void div(int x, int y)
 {
-	printf("%d / %d = %d\n", x, y, x / y);
+	if (y == 0)
+		printf("ERROR: division by zero!\n");
+	else
+		printf("%d / %d = %d\n", x, y, x / y);
 }

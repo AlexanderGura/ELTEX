@@ -31,15 +31,14 @@ int menu()
 	switch(choice)
 	{
 		case '+':
-			add(first, second); break;
+			add(first, second); return 1;
 		case '-':
-			sub(first, second); break;
+			sub(first, second); return 1;
 		case '*':
-			mult(first, second); break;
+			mult(first, second); return 1;
 		case '/':
-			div(first, second); break;
+			div(first, second); return 1;
 		default:
 			return 0;
 	}
-	return 1;
 }
