@@ -42,9 +42,12 @@ void print_contacts(Contact* conts)
 			printf("\nFull name - %s", conts[i].full_name);
 			printf("Work place - %s", conts[i].work_place);
 			printf("Work post - %s", conts[i].work_post);
-			printf("Phone number - %s", conts[i].phone_book);
-			printf("Email - %s", conts[i].email);
-			printf("Social network - %s\n", conts[i].social_net);
+			for (int j = 0; j < PHONE_NUMBER; j++)
+				printf("Phone number %d - %s", j, conts[i].phone_book[j]);
+			for (int j = 0; j < EMAIL_NUMBER; j++)
+				printf("Email %d - %s", j, conts[i].email[j]);
+			for (int j = 0; j < NETWORK_NUMBER; j++)
+				printf("Social network %d - %s", j, conts[i].social_net[j]);
 		}
 	}
 }
@@ -60,7 +63,7 @@ void add_contact(Contact* conts)
 		}
 
 	conts[index].stat = Active;
-	printf("Enter your full name: ");
+	printf("\nEnter your full name: ");
 	fgets(conts[index].full_name, LEN, stdin);
 
 	printf("Enter your work place: ");
@@ -69,14 +72,23 @@ void add_contact(Contact* conts)
 	printf("Enter your work post: ");
 	fgets(conts[index].work_post, LEN, stdin);
 
-	printf("Enter your number: ");
-	fgets(conts[index].phone_book, LEN, stdin);
+	for (int j = 0; j < PHONE_NUMBER; j++)
+	{
+		printf("Enter your %d number: ", j);
+		fgets(conts[index].phone_book[j], LEN, stdin);
+	}
 
-	printf("Enter your email: ");
-	fgets(conts[index].email, LEN, stdin);
+	for (int j = 0; j < EMAIL_NUMBER; j++)
+	{
+		printf("Enter your %d email: ", j);
+		fgets(conts[index].email[j], LEN, stdin);
+	}
 
-	printf("Enter your social network: ");
-	fgets(conts[index].social_net, LEN, stdin);
+	for (int j = 0; j < EMAIL_NUMBER; j++)
+	{
+		printf("Enter your %d social network: ", j);
+		fgets(conts[index].social_net[j], LEN, stdin);
+	}
 
 }
 
@@ -89,12 +101,16 @@ void remove_contact(Contact* conts)
 	getchar();
 
 	conts[index].stat = Inactive;
-	conts[index].full_name[0] = '\0';;
-	conts[index].work_place[0] = '\0';;
-	conts[index].work_post[0] = '\0';;
-	conts[index].phone_book[0] = '\0';;
-	conts[index].email[0] = '\0';;
-	conts[index].social_net[0] = '\0';
+	conts[index].full_name[0] = '\0';
+	conts[index].work_place[0] = '\0';
+	conts[index].work_post[0] = '\0';
+
+	for (int j = 0; j < PHONE_NUMBER; j++)
+		conts[index].phone_book[j][0] = '\0';
+	for (int j = 0; j < PHONE_NUMBER; j++)
+		conts[index].email[j][0] = '\0';
+	for (int j = 0; j < PHONE_NUMBER; j++)
+		conts[index].social_net[j][0] = '\0';
 }
 
 void change_contact(Contact* conts)
@@ -113,27 +129,46 @@ void change_contact(Contact* conts)
 	printf("6. Social network;\n");
 	printf("What field do you want to change? ");
 
+	int num;
 	char choice = getchar();
 	getchar();
 	switch(choice)
 	{
 		case '1':
+			printf("Enter new full name: ");
 			fgets(conts[index].full_name, LEN, stdin);
 			break;
 		case '2':
+			printf("Enter new work place: ");
 			fgets(conts[index].work_place, LEN, stdin);
 			break;
 		case '3':
+			printf("Enter new work post: ");
 			fgets(conts[index].work_post, LEN, stdin);
 			break;
 		case '4':
-			fgets(conts[index].phone_book, LEN, stdin);
+			printf("What phone do you want do change?\n");
+			printf("Enter the number of phone: ");
+			scanf("%d", &num);
+			getchar();
+			printf("Enter new %d phone: ", num);
+			fgets(conts[index].phone_book[num], LEN, stdin);
 			break;
 		case '5':
-			fgets(conts[index].email, LEN, stdin);
+			printf("What email do you want do change?\n");
+			printf("Enter the number of email: ");
+			scanf("%d", &num);
+			getchar();
+			printf("Enter new %d email: ", num);
+			fgets(conts[index].email[num], LEN, stdin);
 			break;
 		case '6':
-			fgets(conts[index].social_net, LEN, stdin);
+			printf("What social net do you want do change?\n");
+			printf("Enter the number of social net: ");
+			scanf("%d", &num);
+			getchar();
+			printf("Enter new %d new social net: ", num);
+			fgets(conts[index].social_net[num], LEN, stdin);
 			break;
 		default:
 			break;

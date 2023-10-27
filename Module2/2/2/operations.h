@@ -5,5 +5,6 @@ void add(int, int);
 void sub(int, int);
 void mult(int, int);
 void div(int, int);
+int menu();
 
 #endif

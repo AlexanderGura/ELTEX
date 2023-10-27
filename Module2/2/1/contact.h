@@ -2,8 +2,9 @@
 #define CONTACT_H_
 
 #define LEN 30
-#define PHONE_NUMBER 5
+#define PHONE_NUMBER 3
 #define EMAIL_NUMBER 3
+#define NETWORK_NUMBER 3
 #define CONTACTS_NUMBER 5
 
 typedef enum Status {Active = 1, Inactive = -1} Status;
@@ -14,9 +15,9 @@ typedef struct Contact
 	char full_name[LEN];
 	char work_place[LEN];
 	char work_post[LEN];
-	char phone_book[LEN];
-	char email[LEN];
-	char social_net[LEN];
+	char phone_book[PHONE_NUMBER][LEN];
+	char email[EMAIL_NUMBER][LEN];
+	char social_net[NETWORK_NUMBER][LEN];
 } Contact;
 
 int menu(Contact* conts);
