@@ -1,17 +1,22 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include "list.h"
 
 int main()
 {
-	List* list = initList();
-	list = pushFront(list, 10);
-	list = pushFront(list, 13);
-	list = pushFront(list, 22);
-	list = pushFront(list, 22);
-	list = pushBack(list, 44);
+	List *list = initList();
+	push(list, 11);
+	push(list, 22);
+	push(list, 52);
+	push(list, -43);
+	push(list, 12);
 	printList(list);
-	deleteList(list);
 
+	popFront(list);
+	popBack(list);
+	erase(list, 1);
+	printList(list);
+
+	deleteList(&list);
 	return 0;
 }
+
