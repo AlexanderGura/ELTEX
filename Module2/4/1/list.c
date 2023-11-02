@@ -117,7 +117,7 @@ void push(List* list, typeData data)
 	}
 
 	Node *tmp = list->head;
-	while (comparison(tmp->data, data))
+	while (comparison(tmp->data, data) == 2)
 	{
 		tmp = tmp->next;
 	}
@@ -204,6 +204,7 @@ typeData erase(List *list, int index)
 
 	typeData data = tmp->data;
 	free(tmp);
+	list->size--;
 	return data;
 }
 
