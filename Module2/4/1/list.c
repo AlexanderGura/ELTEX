@@ -1,6 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "list.h"
+#include "contact.h"
+
+int comparison(Contact first, Contact second)
+{
+	int len_first = sizeof(first.full_name);
+	int len_second = sizeof(second.full_name);
+	int min_len = len_first > len_second ? len_second : len_first;
+	for (int i = 0; i < min_len; i++)
+		if (first.full_name[i] > second.full_name[i])
+			return 1;
+		else
+			return 2;
+}
 
 List* initList()
 {
@@ -13,32 +25,28 @@ List* initList()
 
 void deleteList(List **list)
 {
-	Node *tmp = (*list)->head;
 	Node *next = NULL;
-	while (tmp)
+	for (Node *tmp = (*list)->head; tmp != NULL; tmp = next)
 	{
 		next = tmp->next;
 		free(tmp);
-		tmp = next;
 	}
+
 	free(*list);
 	*list = NULL;
 }
 
 Node* getAt(List *list, int index)
 {
+	if (index <0 || index >= list->size)
+		exit(1);
 	Node* tmp = list->head;
-	int i = 0;
-
-	while (tmp && i < index)
-	{
+	for(int i = 0; tmp && i < index; i++)
 		tmp = tmp->next;
-		i++;
-	}
 	return tmp;
 }
 
-void pushFront(List *list, int data)
+void pushFront(List *list, typeData data)
 {
 	Node *new_node = (Node*) malloc(sizeof(Node));
 	if (new_node == NULL)
@@ -57,10 +65,81 @@ void pushFront(List *list, int data)
 	list->size++;
 }
 
-int popFront(List *list)
+
+
+void pushBack(List *list, typeData data)
+{
+	Node *new_node = (Node*) malloc(sizeof(Node));
+	if (new_node == NULL)
+		exit(1);
+
+	new_node->data = data;
+	new_node->next = NULL;
+	new_node->prev = list->tail;
+
+	if (list->tail != NULL)
+		list->tail->next = new_node;
+	list->tail = new_node;
+
+	if (list->head == NULL)
+		list->head = new_node;
+	list->size++;
+}
+
+void push(List* list, typeData data)
+{
+	if (list->head == NULL)
+	{
+		pushFront(list, data);
+		return;
+	}
+	if (list->head == list->tail)
+	{
+		if (comparison(data, list->tail->data) == 1)
+		{
+			pushBack(list, data);
+			return;
+		}
+		pushFront(list, data);
+		return;
+	}
+
+	if (comparison(list->head->data, data) == 1)
+	{
+		pushFront(list, data);
+		return;
+	}
+
+	if (comparison(list->tail->data,  data) == 2)
+	{
+		pushBack(list, data);
+		return;
+	}
+
+	Node *tmp = list->head;
+	while (comparison(tmp->data, data))
+	{
+		tmp = tmp->next;
+	}
+
+	Node *left = tmp->prev;
+	Node *right = tmp;
+
+	Node *new_node = (Node*) malloc(sizeof(Node));
+	new_node->data = data;
+	new_node->prev = left;
+	new_node->next = right;
+
+	left->next = new_node;
+	right->prev = new_node;
+	list->size++;
+	return;
+}
+
+typeData popFront(List *list)
 {
 	Node *prev;
-	int tmp;
+	typeData tmp;
 
 	if (list->head == NULL)
 		exit(2);
@@ -80,29 +159,10 @@ int popFront(List *list)
 	return tmp;
 }
 
-void pushBack(List *list, int data)
-{
-	Node *new_node = (Node*) malloc(sizeof(Node));
-	if (new_node == NULL)
-		exit(1);
-
-	new_node->data = data;
-	new_node->next = NULL;
-	new_node->prev = list->tail;
-
-	if (list->tail != NULL)
-		list->tail->next = new_node;
-	list->tail = new_node;
-
-	if (list->head == NULL)
-		list->head = new_node;
-	list->size++;
-}
-
-int popBack(List *list)
+typeData popBack(List *list)
 {
 	Node *next;
-	int tmp;
+	typeData tmp;
 
 	if (list->tail == NULL)
 		exit(2);
@@ -122,57 +182,7 @@ int popBack(List *list)
 	return tmp;
 }
 
-void push(List* list, int data)
-{
-	if (list->head == NULL)
-	{
-		pushFront(list, data);
-		return;
-	}
-	if (list->head == list->tail)
-	{
-		if (data > list->tail->data)
-		{
-			pushBack(list, data);
-			return;
-		}
-		pushFront(list, data);
-		return;
-	}
-
-	if (list->head->data > data)
-	{
-		pushFront(list, data);
-		return;
-	}
-
-	if (list->tail->data < data)
-	{
-		pushBack(list, data);
-		return;
-	}
-
-	Node *tmp = list->head;
-	while (tmp->data < data)
-	{
-		tmp = tmp->next;
-	}
-
-	Node *left = tmp->prev;
-	Node *right = tmp;
-
-	Node *new_node = (Node*) malloc(sizeof(Node));
-	new_node->data = data;
-	new_node->prev = left;
-	new_node->next = right;
-
-	left->next = new_node;
-	right->prev = new_node;
-	list->size++;
-	return;
-}
-
-int erase(List *list, int index)
+typeData erase(List *list, int index)
 {
 	if (index < 0 || index > list->size)
 		exit(1);
@@ -192,19 +202,15 @@ int erase(List *list, int index)
 	left->next = right;
 	right->prev = left;
 
-	int data = tmp->data;
+	typeData data = tmp->data;
 	free(tmp);
 	return data;
 }
 
 void printList(List *list)
 {
-	Node *ptr = list->head;
 	printf("Size - %d\n", list->size);
-	while (ptr)
-	{
-		printf("%d ", ptr->data);
-		ptr = ptr->next;
-	}
+	for (Node *ptr = list->head; ptr != NULL; ptr = ptr->next)
+		printf("%s ", ptr->data.full_name);
 	printf("\n");
 }

@@ -1,9 +1,13 @@
 #ifndef LIST_H_
 #define LIST_H_
 
+#include "contact.h"
+
+typedef Contact typeData;
+
 typedef struct Node
 {
-	int data;
+	typeData data;
 	struct Node *next;
 	struct Node *prev;
 } Node;
@@ -19,13 +23,13 @@ List* initList();
 Node* getAt(List *, int);
 void deleteList(List **list);
 
-void pushFront(List *, int);
-void pushBack(List *, int);
-void push(List *, int);
+void pushFront(List *, typeData);
+void pushBack(List *, typeData);
+void push(List *, typeData);
 
-int popFront(List *);
-int popBack(List *);
-int erase(List *, int);
+typeData popFront(List *);
+typeData popBack(List *);
+typeData erase(List *, int);
 
 void printList(List *);
 
