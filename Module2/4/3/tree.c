@@ -1,16 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "tree.h"
-
-Tree* initNode(typeData data)
-{
-	Tree *tree = (Tree*) malloc(sizeof(Tree));
-	tree->data = data;
-	tree->height = 1;
-	tree->left = NULL;
-	tree->right = NULL;
-	return tree;
-}
+#include <string.h>
+#include "contact.h"
 
 static int getHeight(Tree *root)
 {
@@ -81,6 +72,15 @@ static Tree* removeMin(Tree *root)
 	return balance(root);
 }
 
+Tree* initNode(typeData data)
+{
+	Tree *tree = (Tree*) malloc(sizeof(Tree));
+	tree->data = data;
+	tree->height = 1;
+	tree->left = NULL;
+	tree->right = NULL;
+	return tree;
+}
 
 Tree* insert(Tree *root, typeData data)
 {
@@ -88,20 +88,30 @@ Tree* insert(Tree *root, typeData data)
 	{
 		return initNode(data);
 	}
-	if (root->data > data)
+	if (comparison(root->data, data) == 1)
 		root->left = insert(root->left, data);
 	else
 		root->right = insert(root->right, data);
 	return balance(root);
 }
 
+Tree* search(Tree *root, int id)
+{
+	if (root == NULL || id == root->data.id)
+		return root;
+	else if  (id > root->data.id)
+		return search(root->left, id);
+	else
+		return search(root->right, id);
+}
+
 Tree* removeNode(Tree *root, typeData data)
 {
 	if (root == NULL)
 		return NULL;
-	if (data < root->data)
+	if  (comparison(root->data, data) == 1)
 		root->left = removeNode(root->left, data);
-	else if (data > root->data)
+	else if  (comparison(root->data, data) == 2)
 		root->right = removeNode(root->right, data);
 	else
 	{
@@ -123,7 +133,7 @@ void printTree(Tree *root)
 	if (root != NULL)
 	{
 		printTree(root->left);
-		printf("%c ", root->data);
+		printf("%s ", root->data.full_name);
 		printTree(root->right);
 	}
 }
