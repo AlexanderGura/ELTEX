@@ -6,7 +6,7 @@
 int main()
 {
 	Contact alex;
-	alex.id = -1;
+	alex.id = 0;
 	strncpy(alex.full_name, "Alex", LEN);
 	Tree *root = initNode(alex);
 	while (menu(root) != 0);

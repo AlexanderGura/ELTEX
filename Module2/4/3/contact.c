@@ -67,7 +67,7 @@ void print_contacts(Tree *conts)
 
 void add_contact(Tree *conts)
 {
-	static int count = 0;
+	static int count = 1;
 	Contact contact;
 	contact.id = count++;
 	printf("\nEnter your full name: ");
