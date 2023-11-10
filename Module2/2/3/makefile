@@ -1,0 +1,8 @@
+calc.exe : calc.o operations.o
+	gcc calc.o operations.o -g -o operations.exe
+
+calc.o : calc.c
+	gcc calc.c -c -g -o calc.o
+
+operations.o : operations.c
+	gcc operations.c -c -g -o operations.o

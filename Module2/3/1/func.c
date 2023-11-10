@@ -1,46 +1,78 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include "func.h"
 
-int menu()
+static void clear_input()
 {
-	printf("\n1. Alph format;\n");
-	printf("2. Digit format;\n");
-	printf("3. Check file permission;\n");
-	printf("4. Change file permission;\n");
-	printf("Enter your choice ('q' - to quit): ");
+	for (char c = getchar(); c != '\n'; c = getchar());
+}
 
-	char choice = getchar();
-	getchar();
+static int select_choice(char choice)
+{
 	switch(choice)
 	{
 		case '1':
-			printf("\nEnter permission in alphabetic format: ");
-			char perm_str[LEN_BITS];
-			fgets(perm_str, LEN_BITS, stdin);
-			getchar();
-			print_bin(alph_mode(perm_str));
-			return 1;
+			char permission_str[LEN_BITS];
+			return enter_alph_format(permission_str);
 		case '2':
-			printf("\nEnter permission in digit format: ");
-			int perm_int;
-			scanf("%d", &perm_int);
-			getchar();
-			print_bin(digit_mode(perm_int));
-			return 1;
+			int permission_int;
+			return enter_dig_format(&permission_int);
 		case '3':
-			get_stat();
+			char filename[LEN_FILE];
+			printf("Enter file name: ");
+			fgets(filename, LEN_FILE, stdin);
+			get_stat(filename);
 			return 1;
 		case '4':
 			set_stat();
 			return 1;
-		default:
+		case 'q':
+		case 'Q':
+			printf("\nGood bye, have a good day!\n");
 			return 0;
+		default:
+			printf("Invalid choice!\n");
+			return -1;
 	}
+
 }
 
-int alph_mode(char* permission)
+static int enter_alph_format(char *perm)
+{
+	printf("\nEnter permission in alphabetic format: ");
+	fgets(perm, LEN_BITS, stdin);
+	clear_input();
+	if (strlen(perm) < 9)
+	{
+		printf("Wrong format!\n");
+		return -1;
+	}
+	int result = alph_mode_to_bin(perm);
+	print_bin(result);
+
+	return 1;
+}
+
+static int enter_dig_format(int* perm)
+{
+	printf("\nEnter permission in digit format: ");
+	scanf("%d", perm);
+	clear_input();
+	if (*perm < 100 || *perm > 1000)
+	{
+		printf("Wrong format!\n");
+		return -1;
+	}
+	int result = digit_mode_to_bin(*perm);
+	print_bin(result);
+	return 1;
+
+}
+
+
+int alph_mode_to_bin(char* permission)
 {
 	int mode = 0;
 	for (int i = 0; i < LEN_BITS - 1; i++)
@@ -50,7 +82,7 @@ int alph_mode(char* permission)
 	return mode;
 }
 
-int digit_mode(int permission)
+int digit_mode_to_bin(int permission)
 {
 	int mode = 0;
 	int index = 0;
@@ -66,35 +98,102 @@ int digit_mode(int permission)
 		permission /= 10;
 	}
 	return mode;
-
 }
 
-void get_stat()
+
+int menu()
+{
+	printf("\n1. Alph format;\n");
+	printf("2. Digit format;\n");
+	printf("3. Check file permission;\n");
+	printf("4. Change file permission;\n");
+	printf("Enter your choice ('q' - to quit): ");
+
+	char choice = getchar();
+	clear_input();
+	return select_choice(choice);
+}
+
+int get_stat(char *filename)
 {
 	struct stat stat_file;
-	//char filename[LEN_FILE];
-	//printf("Enter file name: ");
-	//fgets(filename, LEN_FILE, stdin);
-	//printf("%s", filename);
+	sscanf(filename, "%s", filename);
 
-	stat("main.c", &stat_file);
+	if (stat(filename, &stat_file) == -1)
+	{
+		printf("\nInvalid filename!\n");
+		return -1;
+	}
 	int mode = stat_file.st_mode;
 	int mask = 0x1ff;
 	mode &= mask;
 
+	printf("\n%s\n", filename);
 	print_bin(mode);
 	print_alph(mode);
-	printf("Digits format: %o\n", mode);
+	print_digit(mode);
+	return mode;
 }
 
 void set_stat()
 {
-	printf("chmod ");
+	printf("\nchmod ");
 	char chmod[LEN_CHMOD];
 	fgets(chmod, LEN_CHMOD, stdin);
-	getchar();
 
-	get_stat();
+	char perm[LEN_CHMOD];
+	char filename[LEN_FILE];
+	sscanf(chmod, "%s%s", perm, filename);
+
+	int mode = get_stat(filename);
+	if (mode == -1)
+		return;
+
+	if (atoi(perm) != 0)
+	{
+		printf("\nNew permission:\n%s\n", filename);
+		int result = (atoi(perm));
+		print_bin(result);
+		print_alph(result);
+		print_digit(result);
+		return;
+	}
+	char usr[] = "ogu";
+	char act[] = "+-=";
+	char prm[] = "xwr";
+
+	int offset = 0;
+	char action;
+	int num_prm = 0;
+	for (int i = 0; i < strlen(perm); i++)
+	{
+		for (int j = 0; j < strlen(usr); j++)
+		{
+			if (perm[i] == usr[j])
+				offset = j;
+			if (perm[i] == act[j])
+				action = act[j];
+			if (perm[i] == prm[j])
+				num_prm |= (1 << j);
+		}
+	}
+	switch (action)
+	{
+		case '-':
+			mode &= (~num_prm << (3 * offset));
+			break;
+		case '+':
+			mode |= (num_prm << (3 * offset));
+			break;
+		case '=':
+			mode &= (~7 << (3 * offset));
+			mode |= (num_prm << (3 * offset));
+			break;
+	}
+	printf("\nNew permission:\n%s\n", filename);
+	print_bin(mode);
+	print_alph(mode);
+	print_digit(mode);
 }
 
 void print_bin(int mode)
@@ -119,4 +218,9 @@ void print_alph(int mode)
 		mode /= 2;
 	}
 	printf("\n");
+}
+
+void print_digit(int mode)
+{
+	printf("Digit format: %d\n", mode);
 }
