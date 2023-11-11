@@ -71,6 +71,21 @@ static int enter_dig_format(int* perm)
 
 }
 
+static int oct_to_dec(int num)
+{
+	if (num < 100 || num > 1000)
+		return -1;
+
+	int pow[] = {1, 8, 64};
+	int result = 0;
+	for(int i = 0; i < sizeof(pow) / sizeof(int); i++)
+	{
+		result += (num % 10) * pow[i];
+		num /= 10;
+	}
+	return result;
+}
+
 
 int alph_mode_to_bin(char* permission)
 {
@@ -131,7 +146,7 @@ int get_stat(char *filename)
 	printf("\n%s\n", filename);
 	print_bin(mode);
 	print_alph(mode);
-	print_digit(mode);
+	print_digit(oct_to_dec(mode));
 	return mode;
 }
 
@@ -152,10 +167,11 @@ void set_stat()
 	if (atoi(perm) != 0)
 	{
 		printf("\nNew permission:\n%s\n", filename);
-		int result = (atoi(perm));
-		print_bin(result);
-		print_alph(result);
-		print_digit(result);
+		int result_oct = atoi(perm);
+		int result_dec = oct_to_dec(result_oct);
+		print_bin(result_dec);
+		print_alph(result_dec);
+		print_digit(result_oct);
 		return;
 	}
 	char usr[] = "ogu";
@@ -180,13 +196,13 @@ void set_stat()
 	switch (action)
 	{
 		case '-':
-			mode &= (~num_prm << (3 * offset));
+			mode &= ~(num_prm << (3 * offset));
 			break;
 		case '+':
 			mode |= (num_prm << (3 * offset));
 			break;
 		case '=':
-			mode &= (~7 << (3 * offset));
+			mode &= ~(7 << (3 * offset));
 			mode |= (num_prm << (3 * offset));
 			break;
 	}
@@ -195,6 +211,7 @@ void set_stat()
 	print_alph(mode);
 	print_digit(mode);
 }
+
 
 void print_bin(int mode)
 {

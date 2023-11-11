@@ -10,6 +10,7 @@ static void clear_input();
 static int select_choice(char);
 static int enter_alph_format(char *);
 static int enter_dig_format(int *);
+static int oct_to_dec(int);
 
 int menu();
 int alph_mode_to_bin(char*);
