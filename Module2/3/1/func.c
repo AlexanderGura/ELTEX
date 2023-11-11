@@ -4,9 +4,74 @@
 #include <sys/stat.h>
 #include "func.h"
 
+/*-----------------------------------------*/
+// Secondary functions;
+/*-----------------------------------------*/
 static void clear_input()
 {
 	for (char c = getchar(); c != '\n'; c = getchar());
+}
+
+
+static int oct_to_dec(int num)
+{
+	if (num < 100 || num > 1000)
+		return -1;
+
+	int pow[] = {1, 8, 64};
+	int result = 0;
+	for(int i = 0; i < sizeof(pow) / sizeof(int); i++)
+	{
+		result += (num % 10) * pow[i];
+		num /= 10;
+	}
+	return result;
+}
+
+static int enter_alph_format(char *perm)
+{
+	printf("\nEnter permission in alphabetic format: ");
+	fgets(perm, LEN_BITS + 1, stdin);
+	clear_input();
+	if (strlen(perm) < 9)
+	{
+		printf("Wrong format!\n");
+		return -1;
+	}
+
+	int result = alph_mode_to_bin(perm);
+	if (result == -1)
+		return -1;
+
+	print_bin(result);
+	return 1;
+}
+
+static int enter_dig_format(int* perm)
+{
+	printf("\nEnter permission in digit format: ");
+	scanf("%d", perm);
+	clear_input();
+	if (*perm < 100 || *perm > 1000)
+	{
+		printf("Wrong format!\n");
+		return -1;
+	}
+
+	int tmp = *perm;
+	while (tmp > 0)
+	{
+		if (tmp % 10 < 4 && tmp % 10 != 0)
+		{
+			printf("Invalid permission!\n");
+			return -1;
+		}
+	}
+
+	int result = digit_mode_to_bin(*perm);
+	print_bin(result);
+	return 1;
+
 }
 
 static int select_choice(char choice)
@@ -39,60 +104,40 @@ static int select_choice(char choice)
 
 }
 
-static int enter_alph_format(char *perm)
+/*-----------------------------------------*/
+// Main functions;
+/*-----------------------------------------*/
+int menu()
 {
-	printf("\nEnter permission in alphabetic format: ");
-	fgets(perm, LEN_BITS, stdin);
+	printf("\n1. Alph format;\n");
+	printf("2. Digit format;\n");
+	printf("3. Check file permission;\n");
+	printf("4. Change file permission;\n");
+	printf("Enter your choice ('q' - to quit): ");
+
+	char choice = getchar();
 	clear_input();
-	if (strlen(perm) < 9)
-	{
-		printf("Wrong format!\n");
-		return -1;
-	}
-	int result = alph_mode_to_bin(perm);
-	print_bin(result);
-
-	return 1;
+	return select_choice(choice);
 }
-
-static int enter_dig_format(int* perm)
-{
-	printf("\nEnter permission in digit format: ");
-	scanf("%d", perm);
-	clear_input();
-	if (*perm < 100 || *perm > 1000)
-	{
-		printf("Wrong format!\n");
-		return -1;
-	}
-	int result = digit_mode_to_bin(*perm);
-	print_bin(result);
-	return 1;
-
-}
-
-static int oct_to_dec(int num)
-{
-	if (num < 100 || num > 1000)
-		return -1;
-
-	int pow[] = {1, 8, 64};
-	int result = 0;
-	for(int i = 0; i < sizeof(pow) / sizeof(int); i++)
-	{
-		result += (num % 10) * pow[i];
-		num /= 10;
-	}
-	return result;
-}
-
 
 int alph_mode_to_bin(char* permission)
 {
 	int mode = 0;
-	for (int i = 0; i < LEN_BITS - 1; i++)
-		if (permission[i] != '-')
-			mode |= (1 << i);
+	int index = LEN_BITS - 1;
+	int isInvalid = 0;
+	for (int i = 0; i < LEN_BITS;  i++)
+	{
+		char p = permission[i];
+		if (p != 'r' && p != 'w' && p != 'x' && p != '-')
+		{
+			printf("Invalid permission!\n");
+			return -1;
+		}
+
+		if (p != '-')
+			mode |= (1 << index);
+		index--;
+	}
 
 	return mode;
 }
@@ -115,20 +160,6 @@ int digit_mode_to_bin(int permission)
 	return mode;
 }
 
-
-int menu()
-{
-	printf("\n1. Alph format;\n");
-	printf("2. Digit format;\n");
-	printf("3. Check file permission;\n");
-	printf("4. Change file permission;\n");
-	printf("Enter your choice ('q' - to quit): ");
-
-	char choice = getchar();
-	clear_input();
-	return select_choice(choice);
-}
-
 int get_stat(char *filename)
 {
 	struct stat stat_file;
@@ -140,13 +171,13 @@ int get_stat(char *filename)
 		return -1;
 	}
 	int mode = stat_file.st_mode;
-	int mask = 0x1ff;
+	int mask = 0777;
 	mode &= mask;
 
 	printf("\n%s\n", filename);
 	print_bin(mode);
 	print_alph(mode);
-	print_digit(oct_to_dec(mode));
+	print_digit(mode);
 	return mode;
 }
 
@@ -166,12 +197,27 @@ void set_stat()
 
 	if (atoi(perm) != 0)
 	{
+		int p = atoi(perm);
+		if (p < 100 || p > 1000)
+		{
+			printf("Wrong format!\n");
+			return;
+		}
+
+		while (p > 0)
+		{
+			if (p % 10 < 4 && p % 10 != 0)
+			{
+				printf("Invalid permission!\n");
+				return;
+			}
+		}
+
 		printf("\nNew permission:\n%s\n", filename);
-		int result_oct = atoi(perm);
-		int result_dec = oct_to_dec(result_oct);
-		print_bin(result_dec);
-		print_alph(result_dec);
-		print_digit(result_oct);
+		int result = oct_to_dec(atoi(perm));
+		print_bin(result);
+		print_alph(result);
+		print_digit(result);
 		return;
 	}
 	char usr[] = "ogu";
@@ -212,16 +258,19 @@ void set_stat()
 	print_digit(mode);
 }
 
-
+/*-----------------------------------------*/
+// Print functions;
+/*-----------------------------------------*/
 void print_bin(int mode)
 {
-	printf("Digit format: ");
-	while (mode > 0)
+	printf("Binary format: ");
+	char res[LEN_BITS] = "000000000";
+	for (int i = 0; i < LEN_BITS; i++)
 	{
-		printf("%d", mode % 2);
+		res[sizeof(res) - 1 - i] = (mode % 2) ? '1' : '0';
 		mode /= 2;
 	}
-	printf("\n");
+	printf("%s\n", res);
 }
 
 void print_alph(int mode)
@@ -229,15 +278,21 @@ void print_alph(int mode)
 	char alph[LEN_BITS];
 	strncpy(alph, "rwxrwxrwx", LEN_BITS);
 	printf("Alphabet format: ");
-	for (int i = 0; i < LEN_BITS - 1; i++)
+
+	char res[LEN_BITS] = "000000000";
+	for (int i = 0; i < LEN_BITS; i++)
 	{
-		(mode % 2 == 1) ? printf("%c", alph[i]) : printf("-");
+		res[sizeof(res) - 1 - i] = (mode % 2) ? '1' : '0';
 		mode /= 2;
 	}
+
+	for (int i = 0; i < LEN_BITS; i++)
+		(res[i] == '1') ? printf("%c", alph[i]) : printf("-");
+
 	printf("\n");
 }
 
 void print_digit(int mode)
 {
-	printf("Digit format: %d\n", mode);
+	printf("Digit format: %o\n", mode);
 }
