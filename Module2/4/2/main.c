@@ -13,6 +13,7 @@ int main()
 		data = rand() % 1000;
 		push(queue, priority, data);
 	}
+	pop(queue);
 	printQueue(queue);
 
 	while (popLesserPriority(queue, 20) != -1);

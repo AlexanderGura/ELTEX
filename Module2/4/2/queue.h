@@ -28,6 +28,7 @@ static typeData erase(Queue *, int);
 
 // Main queue functions;
 Queue* initQueue();
+Node* initNode(int, typeData);
 Node* getAt(Queue *, int);
 void push(Queue *, int, typeData);
 typeData pop(Queue *);
