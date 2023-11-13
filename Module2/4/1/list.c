@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "contact.h"
 
-int comparison(Contact first, Contact second)
+int cmp(Contact first, Contact second)
 {
 	int len_first = sizeof(first.full_name);
 	int len_second = sizeof(second.full_name);
@@ -17,29 +17,41 @@ int comparison(Contact first, Contact second)
 List* initList()
 {
 	List *tmp = (List*) malloc(sizeof(List));
+	if (tmp == NULL)
+		exit(EXIT_FAILURE);
+
 	tmp->size = 0;
 	tmp->head = tmp->tail = NULL;
-
 	return tmp;
+}
+
+Node* initNode(typeData data)
+{
+	Node *new_node = malloc(sizeof(Node));
+	if (new_node == NULL)
+		exit(EXIT_FAILURE);
+
+	new_node->data = data;
+	new_node->next = NULL;
+	new_node->prev = NULL;
+	return new_node;
 }
 
 void deleteList(List **list)
 {
-	Node *next = NULL;
-	for (Node *tmp = (*list)->head; tmp != NULL; tmp = next)
+	for (Node *tmp = (*list)->head; tmp != NULL; tmp = (*list)->head)
 	{
-		next = tmp->next;
+		(*list)->head = (*list)->head->next;
 		free(tmp);
 	}
-
 	free(*list);
-	*list = NULL;
 }
 
 Node* getAt(List *list, int index)
 {
-	if (index <0 || index >= list->size)
-		exit(1);
+	if (index < 0 || index >= list->size)
+		exit(EXIT_FAILURE);
+
 	Node* tmp = list->head;
 	for(int i = 0; tmp && i < index; i++)
 		tmp = tmp->next;
@@ -48,13 +60,8 @@ Node* getAt(List *list, int index)
 
 void pushFront(List *list, typeData data)
 {
-	Node *new_node = (Node*) malloc(sizeof(Node));
-	if (new_node == NULL)
-		exit(1);
-
-	new_node->data = data;
+	Node *new_node = initNode(data);
 	new_node->next = list->head;
-	new_node->prev = NULL;
 
 	if (list->head != NULL)
 		list->head->prev = new_node;
@@ -66,15 +73,9 @@ void pushFront(List *list, typeData data)
 }
 
 
-
 void pushBack(List *list, typeData data)
 {
-	Node *new_node = (Node*) malloc(sizeof(Node));
-	if (new_node == NULL)
-		exit(1);
-
-	new_node->data = data;
-	new_node->next = NULL;
+	Node *new_node = initNode(data);
 	new_node->prev = list->tail;
 
 	if (list->tail != NULL)
@@ -88,45 +89,26 @@ void pushBack(List *list, typeData data)
 
 void push(List* list, typeData data)
 {
-	if (list->head == NULL)
-	{
-		pushFront(list, data);
-		return;
-	}
-	if (list->head == list->tail)
-	{
-		if (comparison(data, list->tail->data) == 1)
-		{
-			pushBack(list, data);
-			return;
-		}
-		pushFront(list, data);
-		return;
-	}
-
-	if (comparison(list->head->data, data) == 1)
+	if (list->head == NULL || cmp(list->head->data, data) == 1)
 	{
 		pushFront(list, data);
 		return;
 	}
 
-	if (comparison(list->tail->data,  data) == 2)
+	if (cmp(list->tail->data,  data) == 2)
 	{
 		pushBack(list, data);
 		return;
 	}
 
 	Node *tmp = list->head;
-	while (comparison(tmp->data, data) == 2)
-	{
+	while (cmp(tmp->data, data) == 2)
 		tmp = tmp->next;
-	}
 
 	Node *left = tmp->prev;
 	Node *right = tmp;
 
-	Node *new_node = (Node*) malloc(sizeof(Node));
-	new_node->data = data;
+	Node *new_node = initNode(data);
 	new_node->prev = left;
 	new_node->next = right;
 
@@ -138,13 +120,10 @@ void push(List* list, typeData data)
 
 typeData popFront(List *list)
 {
-	Node *prev;
-	typeData tmp;
-
 	if (list->head == NULL)
-		exit(2);
+		exit(EXIT_FAILURE);
 
-	prev = list->head;
+	Node *prev = list->head;
 	list->head = list->head->next;
 	if (list->head != NULL)
 		list->head->prev = NULL;
@@ -152,7 +131,7 @@ typeData popFront(List *list)
 	if (prev == list->tail)
 		list->tail = NULL;
 
-	tmp = prev->data;
+	typeData tmp = prev->data;
 	free(prev);
 
 	list->size--;
@@ -161,13 +140,10 @@ typeData popFront(List *list)
 
 typeData popBack(List *list)
 {
-	Node *next;
-	typeData tmp;
-
 	if (list->tail == NULL)
-		exit(2);
+		exit(EXIT_FAILURE);
 
-	next = list->tail;
+	Node *next = list->tail;
 	list->tail = list->tail->prev;
 	if (list->tail != NULL)
 		list->tail->next = NULL;
@@ -175,7 +151,7 @@ typeData popBack(List *list)
 	if (next == list->head)
 		list->head = NULL;
 
-	tmp = next->data;
+	typeData tmp = next->data;
 	free(next);
 
 	list->size--;
@@ -184,12 +160,9 @@ typeData popBack(List *list)
 
 typeData erase(List *list, int index)
 {
-	if (index < 0 || index > list->size)
-		exit(1);
-
 	Node *tmp = getAt(list, index);
 	if (tmp == NULL)
-		exit(1);
+		exit(EXIT_FAILURE);
 
 	if (tmp->prev == NULL)
 		return popFront(list);

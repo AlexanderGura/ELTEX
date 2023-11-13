@@ -1,11 +1,10 @@
 #ifndef CONTACT_H_
 #define CONTACT_H_
 
-#define LEN 30
-#define PHONE_NUMBER 3
-#define EMAIL_NUMBER 3
-#define NETWORK_NUMBER 3
-#define CONTACTS_NUMBER 5
+#define LEN 	       30
+#define PHONE_NUMBER	1
+#define EMAIL_NUMBER 	1
+#define NETWORK_NUMBER 	1
 
 typedef struct Contact
 {
@@ -35,7 +34,8 @@ typedef struct List
 
 // List functions;
 List* initList();
-Node* getAt(List *, int);
+Node* initNode(typeData);
+Node* getAt( List *, int);
 void deleteList(List **list);
 
 void pushFront(List *, typeData);
@@ -49,11 +49,11 @@ typeData erase(List *, int);
 void printList(List *);
 
 // Contact functios;
-int menu(List* conts);
-int comparison(Contact, Contact);
-void print_contacts(List* conts);
-void add_contact(List* conts);
-void remove_contact(List* conts);
-void change_contact(List* conts);
+int menu(List *);
+int comp(Contact, Contact);
+void print_contacts( List* );
+void add_contact(List*);
+void remove_contact(List*);
+void change_contact(List*);
 
 #endif
