@@ -47,7 +47,7 @@ void deleteTree(Tree **);
 
 // Contact functios;
 int menu(Tree* conts);
-int comparison(Contact, Contact);
+int cmp(Contact, Contact);
 void print_contacts(Tree* conts);
 void add_contact(Tree* conts);
 void remove_contact(Tree* conts);

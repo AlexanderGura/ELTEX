@@ -75,6 +75,8 @@ static Tree* removeMin(Tree *root)
 Tree* initNode(typeData data)
 {
 	Tree *tree = (Tree*) malloc(sizeof(Tree));
+	if (tree == NULL)
+		exit(EXIT_FAILURE);
 	tree->data = data;
 	tree->height = 1;
 	tree->left = NULL;
@@ -88,7 +90,7 @@ Tree* insert(Tree *root, typeData data)
 	{
 		return initNode(data);
 	}
-	if (comparison(root->data, data) == 1)
+	if (cmp(root->data, data) == 1)
 		root->left = insert(root->left, data);
 	else
 		root->right = insert(root->right, data);
@@ -99,19 +101,18 @@ Tree* search(Tree *root, int id)
 {
 	if (root == NULL || id == root->data.id)
 		return root;
-	else if  (id > root->data.id)
+	if  (id < root->data.id)
 		return search(root->left, id);
-	else
-		return search(root->right, id);
+	return search(root->right, id);
 }
 
 Tree* removeNode(Tree *root, typeData data)
 {
 	if (root == NULL)
 		return NULL;
-	if  (comparison(root->data, data) == 1)
+	if  (cmp(root->data, data) == 1)
 		root->left = removeNode(root->left, data);
-	else if  (comparison(root->data, data) == 2)
+	else if  (cmp(root->data, data) == 2)
 		root->right = removeNode(root->right, data);
 	else
 	{
@@ -130,7 +131,7 @@ Tree* removeNode(Tree *root, typeData data)
 
 void printTree(Tree *root)
 {
-	if (root != NULL)
+	if (root != NULL && root->data.id != 0)
 	{
 		printTree(root->left);
 		printf("%s ", root->data.full_name);
