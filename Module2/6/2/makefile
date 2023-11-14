@@ -1,9 +1,9 @@
 # Create library;
 list.o : list.c
-	gcc list.c -g -c -o list.o
+	gcc list.c -fPIC -g -c -o list.o
 
-liblist.a : list.o
-	ar rc liblist.a list.o
+liblist.so : list.o
+	gcc list.o -shared -g -o liblist.so
 
 # Create execute file;
 list.exe : main.o contact.o
