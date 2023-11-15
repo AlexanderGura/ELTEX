@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "contact.h"
-#include "list.h"
 
 int cmp(void *first, void *second)
 {

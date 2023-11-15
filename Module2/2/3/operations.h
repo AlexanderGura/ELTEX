@@ -1,8 +1,6 @@
 #ifndef OPERATIONS_H_
 #define OPERATIONS_H_
 
-#define OPERATIONS_NUM 7
-
 static void clear_input(void);
 static void (*select(char choice))(void);
 
