@@ -8,12 +8,6 @@ void goodbye(void)
 	printf("See you later! Bye...\n");
 }
 
-void hello(int num, void *args)
-{
-	printf("%d\n", num);
-	printf("%p\n", args);
-}
-
 int main(int argc, char *argv[])
 {
 	pid_t pid = fork();
