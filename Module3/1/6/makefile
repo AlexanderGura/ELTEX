@@ -1,0 +1,8 @@
+manage.exe : main.o func.o
+	gcc main.o func.o -g -o manage.exe
+
+main.o : main.c
+	gcc main.c -g -c -o main.o
+
+func.o : func.c
+	gcc func.c -g -c -o func.o
