@@ -9,22 +9,16 @@ void clear_input()
 	for (char c = getchar(); c != '\n'; c = getchar());
 }
 
-void get_filename(char *fn)
+void get_input(char *input, char *filename, char *arguments[])
 {
-	printf("Enter the filename: ");
-	fgets(fn, FILE_LEN, stdin);
-	sscanf(fn, "%s", fn);
-}
+	fgets(input, INPUT_LEN, stdin);
+	sscanf(input, "%s", filename);
+	if (input[strlen(input) - 1] == '\n')
+		input[strlen(input) - 1] = '\0';
 
-void get_args(char args_str[], char *args_tok[])
-{
-	printf("Enter arguments: ");
-	fgets(args_str, ARG_LEN, stdin);
-
-	args_tok[0] = strtok(args_str, " ");
+	arguments[0]  = strtok(input, " ");
 	for (int i = 1; i < ARG_CON; i ++)
-		args_tok[i] = strtok(NULL, " ");
-
+		arguments[i] = strtok(NULL, " ");
 }
 
 void execute(const char *pathname, char *const argv[])
