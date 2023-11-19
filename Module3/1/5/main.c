@@ -5,7 +5,7 @@
 int main()
 {
 	List *list = initList();
-//	read_contacts(list);
+	read_contacts(list);
 
 	while(menu(list) != 0);
 

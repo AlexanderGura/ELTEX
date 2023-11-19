@@ -62,11 +62,14 @@ void read_contacts(List *conts)
 		exit(EXIT_FAILURE);
 	}
 
-	read(fd, &conts->size, sizeof(conts->size));
+	int size;
+	read(fd, &size, sizeof(int));
 	Contact *tmp;
-	for (int i = 0; i < conts->size; i++)
+	for (int i = 0; i < size; i++)
 	{
 		tmp = (Contact *) malloc(sizeof(Contact));
+		if (tmp == NULL)
+			exit(EXIT_FAILURE);
 		read(fd, tmp, sizeof(Contact));
 		push(conts, (void *)tmp);
 	}
@@ -90,7 +93,7 @@ void write_contacts(List *conts)
 		exit(EXIT_FAILURE);
 	}
 
-	write(fd, &conts->size, sizeof(conts->size));
+	write(fd, &conts->size, sizeof(int));
 	for (Node *tmp = conts->head; tmp != NULL; tmp = tmp->next)
 		write(fd, tmp->data, sizeof(Contact));
 
