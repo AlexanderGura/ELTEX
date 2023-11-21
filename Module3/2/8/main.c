@@ -27,10 +27,10 @@ int main(int argc, char *argv[])
 
 	pid_t pid = fork();
 	int num;
-	if (signal(SIGUSR1, handler_usr1) == SIG_ERR)
+	if (signal(SIGUSR1, handler_usr) == SIG_ERR)
 		exit(EXIT_FAILURE);
 
-	if (signal(SIGUSR2, handler_usr2) == SIG_ERR)
+	if (signal(SIGUSR2, handler_usr) == SIG_ERR)
 		exit(EXIT_FAILURE);
 
 	switch(pid)

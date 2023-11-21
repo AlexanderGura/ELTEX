@@ -6,25 +6,25 @@
 #include <signal.h>
 #include "func.h"
 
-volatile int File_Access = 0;
+int File_Access = 0; // 0 - disable; 1 - enable;
 
-void handler_usr1(int sig)
+void close_fd(int fd)
 {
-	File_Access = 0;
+	if (close(fd) == -1)
+	{
+		fprintf(stderr, "Couldn't close fd!\n");
+		exit(EXIT_FAILURE);
+	}
 }
 
-void handler_usr2(int sig)
+void handler_usr(int sig)
 {
-	File_Access = 1;
+	File_Access = (sig == SIGUSR1) ? 0 : 1;
 }
 
 void pipectl_child(int *pipefd, int nums)
 {
-	if (close(pipefd[0]) == -1)
-	{
-		perror("Couln't close pipefd!\n");
-		_exit(EXIT_FAILURE);
-	}
+	close_fd(pipefd[0]);
 
 	int fd;
 	if ((fd = open(PIPE_OUT, O_RDONLY)) == -1)
@@ -45,26 +45,13 @@ void pipectl_child(int *pipefd, int nums)
 		printf("from file: %d\n", num);
 	}
 
-	if (close(fd) == -1)
-	{
-		perror("Couldn't close fd!\n");
-		_exit(EXIT_FAILURE);
-	}
-
-	if (close(pipefd[1]) == -1)
-	{
-		perror("Couldn't close pipefd!\n");
-		_exit(EXIT_FAILURE);
-	}
+	close_fd(fd);
+	close_fd(pipefd[1]);
 }
 
 void pipectl_parent(int *pipefd, int nums)
 {
-	if (close(pipefd[1]) == -1)
-	{
-		perror("Couln't close pipefd!\n");
-		exit(EXIT_FAILURE);
-	}
+	close_fd(pipefd[1]);
 
 	int fd;
 	if ((fd = open(PIPE_OUT, O_RDWR | O_CREAT, 0644)) == -1)
@@ -84,15 +71,6 @@ void pipectl_parent(int *pipefd, int nums)
 		printf("%d\n", num);
 	}
 
-	if (close(fd) == -1)
-	{
-		perror("Couldn't close fd!\n");
-		exit(EXIT_FAILURE);
-	}
-
-	if (close(pipefd[0]) == -1)
-	{
-		perror("Couldn't close pipefd!\n");
-		exit(EXIT_FAILURE);
-	}
+	close_fd(fd);
+	close_fd(pipefd[0]);
 }

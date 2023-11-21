@@ -3,8 +3,8 @@
 
 #define PIPE_OUT "pipe_out.txt"
 
-void handler_usr1(int);
-void handler_usr2(int);
+void close_fd(int);
+void handler_usr(int);
 void pipectl_child(int*, int);
 void pipectl_parent(int*, int);
 
