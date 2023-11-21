@@ -4,12 +4,12 @@
 #include <fcntl.h>
 #include <signal.h>
 
-int count = 0;
-
 void handler(int sig)
 {
-	if (++count == 3)
-		exit(EXIT_SUCCESS);
+	if (sig == SIGINT)
+		printf("signal - SIGINT(2)\n");
+	else if (sig == SIGQUIT)
+		printf("signal - SIGQUIT(3)\n");
 }
 
 int main()
@@ -24,12 +24,15 @@ int main()
 	if (signal(SIGINT, handler) == SIG_ERR)
 		exit(EXIT_FAILURE);
 
-	int cnt = 1;
+	if (signal(SIGQUIT, handler) == SIG_ERR)
+		exit(EXIT_FAILURE);
+
+	int count = 1;
 	while (1)
 	{
-		if (write(fd, &cnt, sizeof(cnt)) == -1)
+		if (write(fd, &count, sizeof(count)) == -1)
 			exit(EXIT_FAILURE);
-		cnt++;
+		count++;
 		sleep(1);
 	}
 
