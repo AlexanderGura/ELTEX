@@ -1,10 +1,12 @@
 #ifndef MESSAGE_H_
 #define MESSAGE_H_
 
-#define MSG_NAME "message01"
-#define PROJ_ID 111
-#define BUF_SIZE 10
-
+#define MSG_NAME "msg"
+#define PROJ_ID   111
+#define BUF_SIZE    5
+#define MSG_TYPE    1
+#define SND_END   255
+#define RCV_END   256
 
 typedef struct msgbuf
 {

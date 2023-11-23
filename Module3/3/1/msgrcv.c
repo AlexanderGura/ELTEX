@@ -7,15 +7,9 @@
 #include <fcntl.h>
 #include "message.h"
 
-typedef struct buffer
-{
-	long mtype;
-	char mtext[10];
-} buffer;
-
 int main(int argc, char *argv[])
 {
-	key_t key = ftok("message01.txt", 111);
+	key_t key = ftok(MSG_NAME, PROJ_ID);
 	int msgid = msgget(key, IPC_CREAT | 0666);
 	if (msgid == -1)
 	{
@@ -23,17 +17,18 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	buffer buf;
-	buf.mtype = 1;
-	int is_rcv = 1;
-	while(is_rcv);
+	msgbuf buf;
+	while (1)
 	{
-		msgrcv(msgid, &buf, sizeof(buf), 1, 0);
-		if (buf.mtype == 255)
-			is_rcv = 0;
-		printf("%s\n", buf.mtext);
+		msgrcv(msgid, &buf, BUF_SIZE, 0, 0);
+		if (buf.mtype == SND_END)
+		{
+			buf.mtype = RCV_END;
+			msgsnd(msgid, &buf, BUF_SIZE, 0);
+			break;
+		}
+		printf("%s", buf.mtext);
 	}
-
 	if (msgctl(msgid, IPC_RMID, NULL) == -1)
 		exit(EXIT_FAILURE);
 

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/msg.h>
 #include <sys/types.h>
 #include <sys/ipc.h>
@@ -7,16 +8,9 @@
 #include <fcntl.h>
 #include "message.h"
 
-typedef struct buffer
-{
-	long mtype;
-	char mtext[10];
-} buffer;
-
 int main(int argc, char *argv[])
 {
-	key_t key = ftok("message01.txt", 111);
-	printf("%d\n", key);
+	key_t key = ftok(MSG_NAME, PROJ_ID);
 	int msgid = msgget(key, IPC_CREAT | 0666);
 	if (msgid == -1)
 	{
@@ -31,24 +25,29 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	buffer buf;
+	msgbuf buf;
 	buf.mtype = 1;
-	while (fgets(buf.mtext, BUF_SIZE, fd) != NULL)
+	while (1)
 	{
-		msgsnd(msgid, &buf, sizeof(buf), 0);
+		if (fgets(buf.mtext, BUF_SIZE, fd) == NULL)
+			break;
+		msgsnd(msgid, &buf, BUF_SIZE, 0);
 	}
-	buf.mtype = 255;
+
+	buf.mtype = SND_END;
 	buf.mtext[0] = '\0';
-	msgsnd(msgid, &buf, sizeof(buf), 0);
+	msgsnd(msgid, &buf, BUF_SIZE, 0);
+	msgrcv(msgid, &buf, BUF_SIZE, RCV_END, 0);
 
 	if (msgctl(msgid, IPC_RMID, NULL) == -1)
 		exit(EXIT_FAILURE);
 
-	if (fclose(fd) == -1)
+	if (fclose(fd) != 0)
 	{
-		fprintf(stderr, "file close error!\n");
+		fprintf(stderr, "file open error!\n");
 		exit(EXIT_FAILURE);
 	}
+
 	exit(EXIT_SUCCESS);
 
 	return 0;
