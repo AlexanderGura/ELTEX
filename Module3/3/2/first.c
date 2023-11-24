@@ -18,44 +18,49 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	FILE *fd = fopen("first_msg.txt", "r");
-	if (fd == NULL)
-	{
-		fprintf(stderr, "file open error!\n");
-		exit(EXIT_FAILURE);
-	}
-
 	msgbuf buf;
+	buf.mtype = FIRST_TYPE;
+	printf("Enter your message: ");
+	fgets(buf.mtext, BUF_SIZE, stdin);
+	msgsnd(msgid, &buf, BUF_SIZE, 0);
+
 	int is_active = 1;
 	while (is_active)
 	{
-		buf.mtype = FIRST_TYPE;
-		if (fgets(buf.mtext, BUF_SIZE, fd) == NULL)
-			buf.mtype = SND_END;
-
-		msgsnd(msgid, &buf, BUF_SIZE, 0);
-
 		msgrcv(msgid, &buf, BUF_SIZE, 0, 0);
+
 		switch(buf.mtype)
 		{
 			case SECOND_TYPE:
-				printf("%s", buf.mtext);
+				printf("Message from second: %s", buf.mtext);
+				buf.mtype = FIRST_TYPE;
+
+				printf("Enter your message: ");
+				fgets(buf.mtext, BUF_SIZE, stdin);
+				if (strcmp(buf.mtext, "q\n") == 0)
+				{
+					is_active = 0;
+					strncpy(buf.mtext, "bye", BUF_SIZE);
+					buf.mtype = FST_END;
+				}
+				msgsnd(msgid, &buf, BUF_SIZE, 0);
+				if (buf.mtype == FST_END)
+					msgrcv(msgid, &buf, BUF_SIZE, SND_END, 0);
 				break;
-			case RCV_END:
+
+			case SND_END:
+				buf.mtype = FST_END;
+				strncpy(buf.mtext, "bye", BUF_SIZE);
+				msgsnd(msgid, &buf, BUF_SIZE, 0);
 				is_active = 0;
-				break;
-			default:
 				break;
 		}
 	}
 
-	if (msgctl(msgid, IPC_RMID, NULL) == -1)
-		exit(EXIT_FAILURE);
-
-	if (fclose(fd) != 0)
+	if (buf.mtype == FST_END)
 	{
-		fprintf(stderr, "file open error!\n");
-		exit(EXIT_FAILURE);
+		if (msgctl(msgid, IPC_RMID, NULL) == -1)
+			exit(EXIT_FAILURE);
 	}
 
 	exit(EXIT_SUCCESS);
