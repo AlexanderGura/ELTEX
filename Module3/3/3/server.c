@@ -11,6 +11,7 @@
 int main(int argc, char *argv[])
 {
 	key_t key = ftok(MSG_NAME, PROJ_ID);
+
 	int msgid = msgget(key, IPC_CREAT | 0666);
 	if (msgid == -1)
 	{
@@ -21,8 +22,9 @@ int main(int argc, char *argv[])
 	msgbuf buf;
 	int is_active = 1;
 	int clients[CLIENTS_LEN];
-	int num_client = 1;
-	int tmp;
+	int num_client = 0;
+	int tmp_int;
+	char tmp_str[10];
 	while (is_active)
 	{
 		msgrcv(msgid, &buf, BUF_SIZE, 0, 0);
@@ -30,35 +32,40 @@ int main(int argc, char *argv[])
 		switch(buf.mtype)
 		{
 			case JOIN:
-				clients[num_client] = num_client * 10;
-				buf.mtype = clients[num_client++];
-				strncpy(buf.mtext, "Accessful connection!\n", BUF_SIZE);
+				printf("Join. We have %d clients!\n", ++num_client);
+				buf.mtype = num_client * 10;
+				clients[num_client] = buf.mtype;
+				sprintf(buf.mtext, "%ld ", buf.mtype);
+				strncpy(tmp_str, "Accessful connection!\n", BUF_SIZE);
+				strcat(buf.mtext, tmp_str);
 				msgsnd(msgid, &buf, BUF_SIZE, 0);
 				break;
 
 			case DISCONNECT:
 				buf.mtype = atoi(buf.mtext);
 				clients[buf.mtype / 10] = 0;
+				printf("Disconnect. We have %d clients!\n", --num_client);
 				strncpy(buf.mtext, "Accessful disconnection!\n", BUF_SIZE);
 				msgsnd(msgid, &buf, BUF_SIZE, 0);
 				break;
 
-			default:
-				for (int i = 1; i < CLIENTS_LEN; i++)
-				{
-					if (clients[i] == 0 && clients[i] != buf.mtype / 10)
-						continue;
-					buf.mtype = clients[i];
-					msgsnd(msgid, &buf, BUF_SIZE, 0);
-				}
+			case MESSAGE:
+				sprintf(tmp_str, " (%ld)", buf.mtype);
+				strcat(buf.mtext, tmp_str);
+				tmp_int = buf.mtype;
+				msgsnd(msgid, &buf, BUF_SIZE, MSG_EXCEPT);
 				break;
 		}
-	}
 
+		if (num_client == -1)
+		{
+			printf("No clients!\n");
+			break;
+		}
+	}
 	if (msgctl(msgid, IPC_RMID, NULL) == -1)
 		exit(EXIT_FAILURE);
 
-	exit(EXIT_SUCCESS);
 
-	return 0;
+	exit(EXIT_SUCCESS);
 }
