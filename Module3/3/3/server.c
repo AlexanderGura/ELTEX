@@ -22,20 +22,23 @@ int main(int argc, char *argv[])
 	msgbuf buf;
 	int is_active = 1;
 	int clients[CLIENTS_LEN];
+	int server_requests[3] = {JOIN, DISCONNECT, MESSAGE};
 	int num_client = 0;
 	int tmp_int;
 	char tmp_str[10];
 	while (is_active)
 	{
-		msgrcv(msgid, &buf, BUF_SIZE, 0, 0);
+		int j = 0;
+		while(msgrcv(msgid, &buf, BUF_SIZE, server_requests[j % 3], IPC_NOWAIT) <= 0)
+			j++;
 
 		switch(buf.mtype)
 		{
 			case JOIN:
 				printf("Join. We have %d clients!\n", ++num_client);
-				buf.mtype = num_client * 10;
-				clients[num_client] = buf.mtype;
-				sprintf(buf.mtext, "%ld ", buf.mtype);
+				clients[num_client] = num_client * 10;
+				buf.mtype = OK_JOIN;
+				sprintf(buf.mtext, "%d ", clients[num_client]);
 				strncpy(tmp_str, "Accessful connection!\n", BUF_SIZE);
 				strcat(buf.mtext, tmp_str);
 				msgsnd(msgid, &buf, BUF_SIZE, 0);
@@ -50,14 +53,20 @@ int main(int argc, char *argv[])
 				break;
 
 			case MESSAGE:
-				sprintf(tmp_str, " (%ld)", buf.mtype);
-				strcat(buf.mtext, tmp_str);
+				sscanf(buf.mtext, "%ld", &buf.mtype);
+				printf("%ld, %s", buf.mtype, buf.mtext);
 				tmp_int = buf.mtype;
-				msgsnd(msgid, &buf, BUF_SIZE, MSG_EXCEPT);
+				for (int i = 1; i < CLIENTS_LEN; i++)
+				{
+					if (clients[i] == 0 || clients[i] == tmp_int)
+						continue;
+					buf.mtype = clients[i];
+					msgsnd(msgid, &buf, BUF_SIZE, 0);
+				}
 				break;
 		}
 
-		if (num_client == -1)
+		if (num_client == 0)
 		{
 			printf("No clients!\n");
 			break;

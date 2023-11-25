@@ -8,8 +8,9 @@
 #define BUF_SIZE    30
 #define CLIENTS_LEN 10
 #define JOIN		 1
-#define DISCONNECT	 2
-#define MESSAGE 	 3
+#define OK_JOIN 	 2
+#define DISCONNECT	 3
+#define MESSAGE 	 4
 
 typedef struct msgbuf
 {

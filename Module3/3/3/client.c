@@ -23,12 +23,13 @@ int main(int argc, char *argv[])
 
 	buf.mtype = JOIN;
 	msgsnd(msgid, &buf, BUF_SIZE, 0);
-	msgrcv(msgid, &buf, BUF_SIZE, own_type, 0);
+	msgrcv(msgid, &buf, BUF_SIZE, OK_JOIN, 0);
 	sscanf(buf.mtext, "%d", &own_type);
 	printf("%s", buf.mtext);
 
 	int is_active = 1;
-	char type[3];
+	char type[BUF_SIZE];
+	sprintf(type, "%d ", own_type);
 	while (is_active)
 	{
 		printf("\n1. Type message;\n2. Get message;\nq. Quit;\n");
@@ -39,20 +40,25 @@ int main(int argc, char *argv[])
 		switch(choice)
 		{
 			case '1':
-				buf.mtype = own_type;
+				buf.mtype = MESSAGE;
 				printf("Enter your message: ");
 				fgets(buf.mtext, BUF_SIZE, stdin);
+				strcat(type, buf.mtext);
+				strncpy(buf.mtext, type, BUF_SIZE);
 				msgsnd(msgid, &buf, BUF_SIZE, 0);
 				break;
 
 			case '2':
-				msgrcv(msgid, &buf, BUF_SIZE, own_type, 0);
+				if (msgrcv(msgid, &buf, BUF_SIZE, own_type, IPC_NOWAIT) <= 0)
+				{
+					printf("We don't have messages!\n");
+					break;
+				}
 				printf("%s", buf.mtext);
 				break;
 
 			case 'q':
 				buf.mtype = DISCONNECT;
-				sprintf(type, "%d", own_type);
 				strncpy(buf.mtext, type, BUF_SIZE);
 				msgsnd(msgid, &buf, BUF_SIZE, 0);
 				is_active = 0;
