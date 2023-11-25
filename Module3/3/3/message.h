@@ -1,16 +1,16 @@
 #ifndef MESSAGE_H_
 #define MESSAGE_H_
 
-#define MSG_EXCEPT 020000
-
-#define MSG_NAME  "msg"
-#define PROJ_ID    111
-#define BUF_SIZE    30
-#define CLIENTS_LEN 10
-#define JOIN		 1
-#define OK_JOIN 	 2
-#define DISCONNECT	 3
-#define MESSAGE 	 4
+#define MSG_NAME   "msg"
+#define PROJ_ID     111
+#define BUF_SIZE     30
+#define CLIENTS_LEN  10
+#define JOIN		  1
+#define OK_JOIN 	  2
+#define BAD_JOIN 	  3
+#define DISCONNECT	  4
+#define OK_DISCONNECT 5
+#define MESSAGE 	  6
 
 typedef struct msgbuf
 {

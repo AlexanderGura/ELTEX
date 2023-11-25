@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include "message.h"
+#include "client_func.h"
 
 int main(int argc, char *argv[])
 {
@@ -18,18 +19,11 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	int own_type;
+	long own_type;
 	msgbuf buf;
-
-	buf.mtype = JOIN;
-	msgsnd(msgid, &buf, BUF_SIZE, 0);
-	msgrcv(msgid, &buf, BUF_SIZE, OK_JOIN, 0);
-	sscanf(buf.mtext, "%d", &own_type);
-	printf("%s", buf.mtext);
+	join(&msgid, &buf, &own_type);
 
 	int is_active = 1;
-	char type[BUF_SIZE];
-	sprintf(type, "%d ", own_type);
 	while (is_active)
 	{
 		printf("\n1. Type message;\n2. Get message;\nq. Quit;\n");
@@ -40,27 +34,15 @@ int main(int argc, char *argv[])
 		switch(choice)
 		{
 			case '1':
-				buf.mtype = MESSAGE;
-				printf("Enter your message: ");
-				fgets(buf.mtext, BUF_SIZE, stdin);
-				strcat(type, buf.mtext);
-				strncpy(buf.mtext, type, BUF_SIZE);
-				msgsnd(msgid, &buf, BUF_SIZE, 0);
+				send_message(&msgid, &buf, &own_type);
 				break;
 
 			case '2':
-				if (msgrcv(msgid, &buf, BUF_SIZE, own_type, IPC_NOWAIT) <= 0)
-				{
-					printf("We don't have messages!\n");
-					break;
-				}
-				printf("%s", buf.mtext);
+				recieve_message(&msgid, &buf, &own_type);
 				break;
 
 			case 'q':
-				buf.mtype = DISCONNECT;
-				strncpy(buf.mtext, type, BUF_SIZE);
-				msgsnd(msgid, &buf, BUF_SIZE, 0);
+				disconnect(&msgid, &buf, &own_type);
 				is_active = 0;
 				break;
 

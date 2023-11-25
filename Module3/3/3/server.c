@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 	int clients[CLIENTS_LEN];
 	int server_requests[3] = {JOIN, DISCONNECT, MESSAGE};
 	int num_client = 0;
-	int tmp_int;
+	long tmp_int;
 	char tmp_str[10];
 	while (is_active)
 	{
@@ -35,17 +35,25 @@ int main(int argc, char *argv[])
 		switch(buf.mtype)
 		{
 			case JOIN:
+				if (num_client == CLIENTS_LEN)
+				{
+					buf.mtype = BAD_JOIN;
+					msgsnd(msgid, &buf, BUF_SIZE, 0);
+					break;
+				}
+
 				printf("Join. We have %d clients!\n", ++num_client);
 				clients[num_client] = num_client * 10;
 				buf.mtype = OK_JOIN;
 				sprintf(buf.mtext, "%d ", clients[num_client]);
 				strncpy(tmp_str, "Accessful connection!\n", BUF_SIZE);
 				strcat(buf.mtext, tmp_str);
+				printf("%s", buf.mtext);
 				msgsnd(msgid, &buf, BUF_SIZE, 0);
 				break;
 
 			case DISCONNECT:
-				buf.mtype = atoi(buf.mtext);
+				buf.mtype = OK_DISCONNECT;
 				clients[buf.mtype / 10] = 0;
 				printf("Disconnect. We have %d clients!\n", --num_client);
 				strncpy(buf.mtext, "Accessful disconnection!\n", BUF_SIZE);
@@ -53,9 +61,8 @@ int main(int argc, char *argv[])
 				break;
 
 			case MESSAGE:
-				sscanf(buf.mtext, "%ld", &buf.mtype);
-				printf("%ld, %s", buf.mtype, buf.mtext);
-				tmp_int = buf.mtype;
+				printf("%s", buf.mtext);
+				sscanf(buf.mtext, "%ld", &tmp_int);
 				for (int i = 1; i < CLIENTS_LEN; i++)
 				{
 					if (clients[i] == 0 || clients[i] == tmp_int)
