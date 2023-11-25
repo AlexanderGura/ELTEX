@@ -9,47 +9,31 @@
 
 int main(int argc, char *argv[])
 {
-	char text[5];
-	int prio;
-	struct mq_attr attr, old_attr;
-	attr.mq_flags = O_NONBLOCK;
+	char text[BUF_SIZE];
+	unsigned int prio;
 
-	mqd_t mq_id = mq_open("/queue", O_CREAT | O_RDWR, 0666, attr);
+	mqd_t mq_id = mq_open(MQ_NAME, O_RDWR);
 	if (mq_id == (mqd_t)-1)
 	{
 		fprintf(stderr, "queue open error!\n");
 		exit(EXIT_FAILURE);
 	}
 
-	if (mq_setattr(mq_id, &attr, NULL) == -1)
-	{
-		fprintf(stderr, "queue setattr error!\n");
-		exit(EXIT_FAILURE);
-	}
-
-	if (mq_getattr(mq_id, &old_attr) == -1)
-	{
-		fprintf(stderr, "queue getattr error!\n");
-		exit(EXIT_FAILURE);
-	}
-
-	if ((old_attr.mq_flags & O_NONBLOCK) == 0)
-		printf("NONBLOCK not set!\n");
-
-	msgbuf buf;
 	while (1)
 	{
-		if (mq_receive(mq_id, text, 5, &prio) == -1)
-		{
-			fprintf(stderr, "receive error!\n");
-			exit(EXIT_FAILURE);
-		}
-		if (prio == 255)
+		mq_receive(mq_id, text, BUF_SIZE, &prio);
+		if (prio == MQ_END)
 			break;
 		printf("%s", text);
 	}
 
-	if (mq_unlink("queue") == -1)
+	if (mq_close(mq_id) == -1)
+	{
+		fprintf(stderr, "close error!\n");
+		exit(EXIT_FAILURE);
+	}
+
+	if (mq_unlink(MQ_NAME) == -1)
 	{
 		fprintf(stderr, "unlink error!\n");
 		exit(EXIT_FAILURE);
