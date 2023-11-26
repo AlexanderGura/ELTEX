@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 	char text[BUF_SIZE];
 	unsigned int prio;
 
-	mqd_t mq_id = mq_open(MQ_NAME, O_RDWR);
+	mqd_t mq_id = mq_open(MQ_NAME, O_RDWR | O_NONBLOCK);
 	if (mq_id == (mqd_t)-1)
 	{
 		fprintf(stderr, "queue open error!\n");
@@ -36,9 +36,13 @@ int main(int argc, char *argv[])
 				break;
 
 			case '2':
-				mq_receive(mq_id, text, BUF_SIZE, &prio);
+				if (mq_receive(mq_id, text, BUF_SIZE, &prio) == -1)
+				{
+					printf("\nWe don't have messages for you!\n\n");
+					break;
+				}
 				if (prio == FIRST_PRIO)
-					printf("\nMessage: %s", text);
+					printf("\nMessage: %s\n", text);
 				if (prio == FIRST_END)
 				{
 					mq_send(mq_id, text, BUF_SIZE, SECOND_END);
@@ -48,9 +52,7 @@ int main(int argc, char *argv[])
 
 			case 'q':
 				mq_send(mq_id, text, BUF_SIZE, SECOND_END);
-				mq_receive(mq_id, text, BUF_SIZE, &prio);
-				if (prio == FIRST_END)
-					is_active = 0;
+				is_active = 0;
 				break;
 		}
 	}
