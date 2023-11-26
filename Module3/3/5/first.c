@@ -43,7 +43,10 @@ int main(int argc, char *argv[])
 
 			case '2':
 				if (mq_receive(mq_id, text, BUF_SIZE, &prio) == -1)
+				{
 					printf("\nWe don't have messages for you!\n\n");
+					break;
+				}
 
 				if (prio == SECOND_PRIO)
 					printf("\nMessage: %s\n", text);

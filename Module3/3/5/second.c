@@ -41,13 +41,16 @@ int main(int argc, char *argv[])
 					printf("\nWe don't have messages for you!\n\n");
 					break;
 				}
+
 				if (prio == FIRST_PRIO)
 					printf("\nMessage: %s\n", text);
-				if (prio == FIRST_END)
+				else if (prio == FIRST_END)
 				{
 					mq_send(mq_id, text, BUF_SIZE, SECOND_END);
 					is_active = 0;
 				}
+				else
+					mq_send(mq_id, text, BUF_SIZE, prio);
 				break;
 
 			case 'q':
