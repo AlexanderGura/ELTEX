@@ -1,24 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <mqueue.h>
 #include <sys/types.h>
-#include <sys/stat.h>
+#include <sys/ipc.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include "message.h"
 
 int main(int argc, char *argv[])
 {
-	mq_unlink(MQ_NAME);
-
-	unsigned int prio;
 	char text[BUF_SIZE];
-	struct mq_attr attributes;
-	attributes.mq_maxmsg = 10;
-	attributes.mq_msgsize = BUF_SIZE;
+	unsigned int prio;
 
-	mqd_t mq_id = mq_open(MQ_NAME, O_CREAT | O_RDWR | O_NONBLOCK, 0600, &attributes);
+	mqd_t mq_id = mq_open(MQ_NAME, O_RDWR | O_NONBLOCK);
 	if (mq_id == (mqd_t)-1)
 	{
 		fprintf(stderr, "queue open error!\n");
@@ -28,7 +22,7 @@ int main(int argc, char *argv[])
 	int is_active = 1;
 	while (is_active)
 	{
-		printf("1. Type message\n2. Get message\nq. Quit");
+		printf("1. Type message;\n2. Get message;\nq. Quit;");
 		printf("\nEnter your choice: ");
 		char choice = getchar();
 		getchar();
@@ -38,7 +32,7 @@ int main(int argc, char *argv[])
 			case '1':
 				printf("Enter your message: ");
 				fgets(text, BUF_SIZE, stdin);
-				mq_send(mq_id, text, BUF_SIZE, FIRST_PRIO);
+				mq_send(mq_id, text, BUF_SIZE, SECOND_PRIO);
 				break;
 
 			case '2':
@@ -48,11 +42,11 @@ int main(int argc, char *argv[])
 					break;
 				}
 
-				if (prio == SECOND_PRIO)
+				if (prio == FIRST_PRIO)
 					printf("\nMessage: %s\n", text);
-				else if (prio == SECOND_END)
+				else if (prio == FIRST_END)
 				{
-					mq_send(mq_id, text, BUF_SIZE, FIRST_END);
+					mq_send(mq_id, text, BUF_SIZE, SECOND_END);
 					is_active = 0;
 				}
 				else
@@ -60,14 +54,23 @@ int main(int argc, char *argv[])
 				break;
 
 			case 'q':
+				mq_send(mq_id, text, BUF_SIZE, SECOND_END);
 				is_active = 0;
-				mq_send(mq_id, text, BUF_SIZE, FIRST_END);
 				break;
 		}
 	}
 
 	if (mq_close(mq_id) == -1)
+	{
+		fprintf(stderr, "close error!\n");
 		exit(EXIT_FAILURE);
+	}
+
+	if (mq_unlink(MQ_NAME) == -1)
+	{
+		fprintf(stderr, "unlink error!\n");
+		exit(EXIT_FAILURE);
+	}
 
 	exit(EXIT_SUCCESS);
 }
