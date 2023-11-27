@@ -24,10 +24,11 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	const char * fifoname = "/tmp/fifo1";
+	const char *fifoname = "/tmp/fifo1";
 	key_t key = ftok(fifoname, 1313);
 	int semid = semget(key, 3, 0666 | IPC_CREAT); // 0 - mutex, 1 - empty, 2 - full
-	printf("%d\n", semid);
+	if (semid == -1)
+		perror(NULL);
 
 	union semun arg;
 	unsigned short args[3] = {1, atoi(argv[1]), 0};
@@ -47,10 +48,7 @@ int main(int argc, char *argv[])
 
 	int fifo_fd = open(fifoname, O_WRONLY,  O_NONBLOCK);
 	if (fifo_fd == -1)
-	{
-		fprintf(stderr, "Couldn't open %s!\n", fifoname);
-		exit(EXIT_FAILURE);
-	}
+		perror(NULL);
 
 	int num;
 	for (int i = 0; i < atoi(argv[1]); i++)
@@ -58,16 +56,13 @@ int main(int argc, char *argv[])
 		semop(semid, &lock, 1);
 		num = rand() % 10000;
 		if (write(fifo_fd, &num, sizeof(num)) == -1)
-			exit(EXIT_FAILURE);
+			perror(NULL);
 		semop(semid, push, 2);
 		semop(semid, &unlock, 1);
 	}
 
 	if (close(fifo_fd) == -1)
-	{
-		fprintf(stderr, "Couldn't close %s!\n", fifoname);
-		exit(EXIT_FAILURE);
-	}
+		perror(NULL);
 
 	return 0;
 }
