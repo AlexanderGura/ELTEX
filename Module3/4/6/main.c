@@ -3,8 +3,10 @@
 #include <time.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <sys/sem.h>
+#include <sys/stat.h>
+#include <semaphore.h>
 #include "func.h"
+
 
 int main(int argc, char *argv[])
 {
@@ -23,14 +25,14 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	int semid = semget(IPC_PRIVATE, 2, 0666 | IPC_CREAT);
-	if (semid == -1)
-		perror("Create sem!\n");
-
-	union semun arg;
-	arg.val = 0;
-	semctl(semid, 0, SETVAL, arg);	// count of readers;
-	semctl(semid, 1, SETVAL, arg);	// count of writers;
+	sem_t *semid[SEM_CNT];
+	char *sem[] = { "readers", "writers" };
+	for (int i = 0; i < SEM_CNT; i++)
+	{
+		semid[i] = sem_open(sem[i], O_CREAT, 0600, 0);
+		if (semid[i] == SEM_FAILED)
+			perror("sem_open\n");
+	}
 
 	pid_t pid = fork();
 	int fd;
@@ -47,5 +49,13 @@ int main(int argc, char *argv[])
 		default:
 			pipectl_parent(pipefd, atoi(argv[1]), semid);
 			exit(EXIT_SUCCESS);
+	}
+
+	for (int i = 0; i < SEM_CNT; i++)
+	{
+		if (sem_close(semid[i]) == -1)
+			perror(NULL);
+		if (sem_unlink(sem[i]) == -1)
+			perror(NULL);
 	}
 }

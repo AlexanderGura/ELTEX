@@ -3,14 +3,9 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
-#include <sys/sem.h>
+#include <semaphore.h>
 #include <signal.h>
 #include "func.h"
-
-static struct sembuf join[2] = {{1, 0, 0}, {0, 1, 0}};
-static struct sembuf disconnect = {0, -1, 0};
-static struct sembuf start_write[2] = {{0, 0, 0}, {1, 1, 0}};
-static struct sembuf end_write = {1, -1, 0};
 
 void close_fd(int fd)
 {
@@ -21,7 +16,7 @@ void close_fd(int fd)
 	}
 }
 
-void pipectl_child(int *pipefd, int nums, int semid)
+void pipectl_child(int *pipefd, int nums, sem_t** semid)
 {
 	close_fd(pipefd[0]);
 
@@ -33,7 +28,7 @@ void pipectl_child(int *pipefd, int nums, int semid)
 	}
 
 	int num;
-	union semun arg;
+	int value;
 	for (int i = 0; i < nums; i++)
 	{
 		num = rand() % 1000;
@@ -42,21 +37,21 @@ void pipectl_child(int *pipefd, int nums, int semid)
 		while (1)
 		{
 			sleep(1);
-			semctl(semid, 0, GETVAL, arg);
-			if (arg.val != PROC_CNT)
+			sem_getvalue(semid[0], &value);
+			if (value != PROC_CNT)
 				break;
 		}
-		semop(semid, join, 2);
+		sem_post(semid[0]);
 		read(fd, &num, sizeof(num));
 		printf("from file: %d\n", num);
-		semop(semid, &disconnect, 1);
+		sem_wait(semid[0]);
 	}
 
 	close_fd(fd);
 	close_fd(pipefd[1]);
 }
 
-void pipectl_parent(int *pipefd, int nums, int semid)
+void pipectl_parent(int *pipefd, int nums, sem_t **semid)
 {
 	close_fd(pipefd[1]);
 
@@ -68,16 +63,25 @@ void pipectl_parent(int *pipefd, int nums, int semid)
 	}
 
 	int num;
+	int value;
 	for (int i = 0; i < nums; i++)
 	{
 		read(pipefd[0], &num, sizeof(num));
 
-		semop(semid, start_write, 2);
+		while (1)
+		{
+			sem_getvalue(semid[0], &value);
+			if (value == 0)
+				break;
+			sleep(1);
+		}
+
+		sem_post(semid[1]);
 		write(fd, &num, sizeof(num));
 		printf("\nfrom pipe: %d\n", num);
-		semop(semid, &end_write, 1);
+		sem_wait(semid[1]);
 	}
-	sleep(3);	// delay before end;
+	sleep(1);	// delay before end;
 
 	close_fd(fd);
 	close_fd(pipefd[0]);
