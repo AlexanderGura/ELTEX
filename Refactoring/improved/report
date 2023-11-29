@@ -1,0 +1,5 @@
+1. Added makefile;
+2. Replace of prototipe of "deleteList", "printList";
+3. Added break in "switch(whatdo)";
+4. Added files "list.h", "list.c";
+5. Added files "contact.h", "contact.c";
