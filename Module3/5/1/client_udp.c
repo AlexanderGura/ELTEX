@@ -12,9 +12,9 @@
 
 int main(int argc, char *argv[])
 {
-	if (argc != 2)
+	if (argc != 3)
 	{
-		fprintf(stderr, "Usage: %s <IP-addres>\n", argv[0]);
+		fprintf(stderr, "Usage: %s <IP-addres> <port>\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
 
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 	// client;
 	bzero(&client_addr, sizeof(client_addr));
 	client_addr.sin_family = AF_INET;
-	client_addr.sin_port = htons(0);
+	client_addr.sin_port = htons(51000);
 	client_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
 	if (bind(sockfd, (struct sockaddr *) &client_addr, sizeof(client_addr)) < 0)
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 	// server;
 	bzero(&server_addr, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
-	server_addr.sin_port = htons(7);
+	server_addr.sin_port = htons(atoi(argv[2]));
 	if (inet_aton(argv[1], &server_addr.sin_addr) == 0)
 	{
 		fprintf(stderr, "Invalid IP-addres!\n");

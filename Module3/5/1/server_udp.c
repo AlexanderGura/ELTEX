@@ -12,6 +12,12 @@
 
 int main(int argc, char *argv[])
 {
+	if (argc != 2)
+	{
+		fprintf(stderr, "Usage: %s <port>\n", argv[0]);
+		exit(EXIT_FAILURE);
+	}
+
 	char buff[BUF_SIZE];
 	int client_len;
 	struct sockaddr_in server_addr, client_addr;
@@ -19,7 +25,7 @@ int main(int argc, char *argv[])
 	// server;
 	bzero(&server_addr, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
-	server_addr.sin_port = htons(51000);
+	server_addr.sin_port = htons(atoi(argv[1]));
 	server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	int sockfd = socket(PF_INET, SOCK_DGRAM, 0);
 	if (sockfd < 0)
@@ -27,7 +33,6 @@ int main(int argc, char *argv[])
 		perror(NULL);
 		exit(EXIT_FAILURE);
 	}
-	printf("%d\n", server_addr.sin_addr.s_addr);
 
 	if (bind(sockfd, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
 	{
@@ -52,7 +57,7 @@ int main(int argc, char *argv[])
 			printf("Goodbye!\n");
 			break;
 		}
-		printf("Message from client: %s\n", buff);
+		printf("Message from client: %s", buff);
 
 		if (sendto(sockfd, buff, BUF_SIZE, 0,
 			(struct sockaddr *) &client_addr, client_len) < 0)
