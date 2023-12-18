@@ -1,0 +1,225 @@
+=~=~=~=~=~=~=~=~=~=~=~= PuTTY log 2023.12.11 12:07:31 =~=~=~=~=~=~=~=~=~=~=~=
+SH RU     sh run
+Building configuration...
+
+Current configuration : 5278 bytes
+!
+! Last configuration change at 04:56:49 UTC Mon Dec 11 2023
+!
+version 15.0
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+service compress-config
+!
+hostname vIOS-L2-01
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+!
+!
+!
+!
+!
+vtp domain CISCO-vIOS
+vtp mode transparent
+!
+!
+!
+ip cef
+no ipv6 cef
+!
+!
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+spanning-tree vlan 1 priority 24576
+!
+vlan internal allocation policy ascending
+!
+vlan 100
+ name VLAN100
+!
+vlan 200,300 
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface GigabitEthernet0/0
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet0/1
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet0/2
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet0/3
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet1/0
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet1/1
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet1/2
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet1/3
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet2/0
+ media-type rj45
+ negotiation auto
+!
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+!
+!
+!
+!
+!
+!
+control-plane
+!
+banner exec ^C
+**************************************************************************
+* IOSv - Cisco Systems Confidential                                      *
+*                                                                        *
+* This software is provided as is without warranty for internal          *
+* development and testing purposes only under the terms of the Cisco     *
+* Early Field Trial agreement.  Under no circumstances may this software *
+* be used for production purposes or deployed in a production            *
+* environment.                                                           *
+*                                                                        *
+* By using the software, you agree to abide by the terms and conditions  *
+* of the Cisco Early Field Trial Agreement as well as the terms and      *
+* conditions of the Cisco End User License Agreement at                  *
+* http://www.cisco.com/go/eula                                           *
+*                                                                        *
+* Unauthorized use or distribution of this software is expressly         *
+* Prohibited.                                                            *
+**************************************************************************^C
+banner incoming ^C
+**************************************************************************
+* IOSv - Cisco Systems Confidential                                      *
+*                                                                        *
+* This software is provided as is without warranty for internal          *
+* development and testing purposes only under the terms of the Cisco     *
+* Early Field Trial agreement.  Under no circumstances may this software *
+* be used for production purposes or deployed in a production            *
+* environment.                                                           *
+*                                                                        *
+* By using the software, you agree to abide by the terms and conditions  *
+* of the Cisco Early Field Trial Agreement as well as the terms and      *
+* conditions of the Cisco End User License Agreement at                  *
+* http://www.cisco.com/go/eula                                           *
+*                                                                        *
+* Unauthorized use or distribution of this software is expressly         *
+* Prohibited.                                                            *
+**************************************************************************^C
+banner login ^C
+**************************************************************************
+* IOSv - Cisco Systems Confidential                                      *
+*                                                                        *
+* This software is provided as is without warranty for internal          *
+* development and testing purposes only under the terms of the Cisco     *
+* Early Field Trial agreement.  Under no circumstances may this software *
+* be used for production purposes or deployed in a production            *
+* environment.                                                           *
+*                                                                        *
+* By using the software, you agree to abide by the terms and conditions  *
+* of the Cisco Early Field Trial Agreement as well as the terms and      *
+* conditions of the Cisco End User License Agreement at                  *
+* http://www.cisco.com/go/eula                                           *
+*                                                                        *
+* Unauthorized use or distribution of this software is expressly         *
+* Prohibited.                                                            *
+**************************************************************************^C
+!
+line con 0
+ logging synchronous
+line aux 0
+line vty 0 4
+ logging synchronous
+ login
+line vty 5 15
+ logging synchronous
+ login
+!
+!
+end
+
+vIOS-L2-01#
+vIOS-L2-01#vIOS-L2-01#term len 0
+            ^
+% Invalid input detected at '^' marker.
+
+vIOS-L2-01#vIOS-L2-01#sh run
+            ^
+% Invalid input detected at '^' marker.
+
+vIOS-L2-01#Building configuration...
+            ^
+% Invalid input detected at '^' marker.
+
+vIOS-L2-01#
+vIOS-L2-01#Current configuration : 5278 bytes
+            ^
+% Invalid input detected at '^' marker.
+
+vIOS-L2-01#!
+vIOS-L2-01#! Last configuration change at 04:56:49 UTC Mon Dec 11 2023
+vIOS-L2-01#!
+vIOS-L2-01#version 15.0
+              ^
+% Invalid input detected at '^' marker.
+
+vIOS-L2-01#service timestamps debug datetime msec
+             ^
+% Invalid input detected at '^' marker.
+
+vIOS-L2-01#service timestamps log datetime msec
+             ^
+% Invalid input detected at '^' marker.
+
+vIOS-L2-01#no service password-encryption
+              ^
+% Invalid input detected at '^' marker.
+
+vIOS-L2-01#service compress-config
+             ^
+% Invalid input detected at '^' marker.
+
+vIOS-L2-01#!
+vIOS-L2-01#hostname vIOS-L2-01
+            ^
+% Invalid input detected at '^' marker.
+
+vIOS-L2-01#!
+vIOS-L2-01#boot-start-marker
+Translating "boot-start-marker"...domain server (255.255.255.255)
