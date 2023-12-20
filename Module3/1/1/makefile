@@ -3,3 +3,6 @@ fork.exe : main.o
 
 main.o : main.c
 	gcc main.c -g -c -o main.o
+
+clean:
+	rm main.o fork.exe

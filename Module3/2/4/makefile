@@ -4,3 +4,5 @@ first:
 second:
 	gcc second.c -g -o second.exe
 
+clean:
+	rm $(wildcard *.exe)
