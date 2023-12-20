@@ -1,16 +1,9 @@
-# Create execute file;
-list.exe : main.o contact.o
+all:
+	gcc list.c -fPIC -g -c -o list.o
+	gcc list.o -shared -g -o liblist.so
+	gcc main.c -g -c -o main.o
+	gcc contact.c -g -c -o contact.o -L. -llist
 	gcc main.o contact.o -g -o list.exe -L. -llist
 
-main.o : main.c
-	gcc main.c -g -c -o main.o
-
-contact.o : contact.c
-	gcc contact.c -g -c -o contact.o -L. -llist
-
-# Create library;
-liblist.so : list.o
-	gcc list.o -shared -g -o liblist.so
-
-list.o : list.c
-	gcc list.c -fPIC -g -c -o list.o
+clean:
+	rm list.o liblist.so main.o contact.o list.exe

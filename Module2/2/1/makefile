@@ -6,3 +6,6 @@ main.o : main.c
 
 contact.o : contact.c
 	gcc contact.c -c -g -o contact.o
+
+clean:
+	rm contact.o main.o contact.exe

@@ -6,3 +6,6 @@ calc.o : calc.c
 
 operations.o : operations.c
 	gcc operations.c -c -g -o operations.o
+
+clean:
+	rm calc.o operations.o operations.exe

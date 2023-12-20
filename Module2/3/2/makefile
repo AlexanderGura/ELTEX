@@ -6,3 +6,6 @@ main.o : main.c
 
 func.o : func.c
 	gcc func.c -g -c -o func.o
+
+clean:
+	rm main.o func.o ip.exe

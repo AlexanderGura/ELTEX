@@ -10,3 +10,5 @@ contact.o : contact.c
 tree.o : tree.c
 	gcc tree.c -g -c -o tree.o
 
+clean:
+	rm main.o contact.o tree.o tree.exe

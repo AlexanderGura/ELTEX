@@ -7,3 +7,5 @@ main.o : main.c
 queue.o : queue.c
 	gcc queue.c -g -c -o queue.o
 
+clean:
+	rm main.o queue.o queue.exe

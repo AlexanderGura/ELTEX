@@ -10,3 +10,5 @@ contact.o : contact.c
 list.o : list.c
 	gcc list.c -g -c -o list.o
 
+clean:
+	rm main.o contact.o list.o list.exe
